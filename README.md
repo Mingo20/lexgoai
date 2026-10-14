@@ -72,7 +72,15 @@ curl -s localhost:8000/api/services | head -c 300
 # panel profesional: POST /api/admin/login {"pin": "lexgo2026"}
 ```
 
-## Despliegue
+## Despliegue activo
+
+- **Interfaz (PWA):** https://mingo20.github.io/lexgoai/
+- **API (función Base44):** https://superagent-573efe2c.base44.app/functions/lexgoaiApi
+- **Almacenamiento:** entidad `LexRecord` del entorno nativo de Base44 (sin Supabase).
+- El frontend publicado usa `LEXGO_BACKEND = "base44"`; el backend Deno de este
+  repositorio (`deno task dev`) sirve la misma aplicación en modo local.
+
+## Despliegue (alternativas)
 
 ### Backend (Deno Deploy)
 
