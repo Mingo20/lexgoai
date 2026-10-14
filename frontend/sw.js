@@ -1,7 +1,7 @@
 // LexGoAI — Service Worker: PWA instalable con caché de la interfaz.
 // Las llamadas a /api/ siempre van a la red.
 
-const CACHE = "lexgoai-v1";
+const CACHE = "lexgoai-v2";
 const ASSETS = [
   "./",
   "./index.html",

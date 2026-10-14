@@ -3,6 +3,7 @@
   "use strict";
 
   const API = window.LEXGO_API_BASE ?? "";
+  const B44 = window.LEXGO_BACKEND === "base44";
   const app = document.getElementById("app");
 
   // ── Identidad anónima del cliente ─────────────────────────────
@@ -16,6 +17,7 @@
   })();
 
   async function api(path, opts = {}) {
+    if (B44) return apiB44(path, opts);
     const headers = { ...(opts.headers || {}) };
     if (opts.body) headers["Content-Type"] = "application/json";
     const token = sessionStorage.getItem("lexgo_admin");
@@ -24,6 +26,48 @@
       method: opts.method || "GET",
       headers,
       body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+    if (!res.ok) {
+      let msg = "";
+      try { msg = (await res.json()).error || ""; } catch { /* sin cuerpo */ }
+      throw new Error(msg || `Error ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // Adaptador Base44: traduce las rutas REST a acciones de la función
+  async function apiB44(path, opts = {}) {
+    const method = opts.method || "GET";
+    const payload = { ...(opts.body || {}) };
+    const token = sessionStorage.getItem("lexgo_admin");
+    if (token) payload.token = token;
+    const [pathname, search] = path.split("?");
+    for (const [k, v] of new URLSearchParams(search || "")) payload[k] = v;
+    let m;
+    let action = null;
+    if (method === "GET" && pathname === "/api/services") action = "services";
+    else if (method === "GET" && (m = pathname.match(/^\/api\/services\/([\w-]+)$/))) { action = "service"; payload.id = m[1]; }
+    else if (method === "POST" && pathname === "/api/requests") action = "createRequest";
+    else if (method === "GET" && pathname === "/api/requests") action = "listRequests";
+    else if (method === "GET" && (m = pathname.match(/^\/api\/requests\/([\w-]+)$/))) { action = "getRequest"; payload.id = m[1]; }
+    else if (method === "POST" && (m = pathname.match(/^\/api\/requests\/([\w-]+)\/answers$/))) { action = "postAnswers"; payload.id = m[1]; }
+    else if (method === "POST" && (m = pathname.match(/^\/api\/requests\/([\w-]+)\/generate$/))) { action = "generate"; payload.id = m[1]; }
+    else if (method === "GET" && (m = pathname.match(/^\/api\/documents\/([\w-]+)$/))) { action = "getDocument"; payload.id = m[1]; }
+    else if (method === "POST" && pathname === "/api/admin/login") action = "adminLogin";
+    else if (method === "GET" && pathname === "/api/admin/requests") action = "adminRequests";
+    else if (method === "GET" && pathname === "/api/admin/review-tasks") action = "adminReviewTasks";
+    else if (method === "POST" && (m = pathname.match(/^\/api\/admin\/review-tasks\/([\w-]+)\/decision$/))) { action = "adminDecision"; payload.id = m[1]; }
+    else if (method === "GET" && pathname === "/api/admin/professionals") action = "adminProfessionals";
+    else if (method === "POST" && pathname === "/api/admin/professionals") action = "adminAddProfessional";
+    else if (method === "PATCH" && (m = pathname.match(/^\/api\/admin\/professionals\/([\w-]+)$/))) { action = "adminToggleProfessional"; payload.id = m[1]; }
+    else if (method === "GET" && pathname === "/api/admin/services") action = "adminServices";
+    else if (method === "PATCH" && (m = pathname.match(/^\/api\/admin\/services\/([\w-]+)$/))) { action = "adminSetServiceAuto"; payload.id = m[1]; }
+    else throw new Error("Ruta no soportada: " + path);
+
+    const res = await fetch(API + "/functions/lexgoaiApi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, ...payload }),
     });
     if (!res.ok) {
       let msg = "";

@@ -14,9 +14,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
   <script>
+    // Modo de backend: "deno" (mismo origen) o "base44" (función desplegada).
+    window.LEXGO_BACKEND = window.LEXGO_BACKEND ?? "deno";
     // URL del backend. Vacío = mismo origen (Deno sirve el frontend).
-    // Si el frontend se publica en GitHub Pages, apunta a tu backend Deno Deploy:
-    // window.LEXGO_API_BASE = "https://TU-PROYECTO.deno.dev";
     window.LEXGO_API_BASE = window.LEXGO_API_BASE ?? "";
   </script>
 </head>
