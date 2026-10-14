@@ -124,7 +124,8 @@ route("GET", "/api/requests", (_req, _p, url) => {
   const list = db.filter("requests", (r) => r.client_id === clientId)
     .map((r) => {
       const doc = db.filter("documents", (d) => d.request_id === r.id)[0];
-      return { ...withService(r), document_id: doc?.id ?? null, document_title: doc?.title ?? null };
+      const review = db.filter("review_tasks", (t) => t.request_id === r.id)[0] ?? null;
+      return { ...withService(r), document_id: doc?.id ?? null, document_title: doc?.title ?? null, review_status: review?.status ?? null, review_notes: review?.notes ?? null };
     });
   list.sort((a, b) => b.created_date.localeCompare(a.created_date));
   return json(list);
@@ -166,6 +167,14 @@ route("POST", "/api/requests/:id/answers", async (req, p) => {
 route("POST", "/api/requests/:id/generate", async (_req, p) => {
   const r = db.get("requests", p.id);
   if (!r) return json({ error: "Solicitud no encontrada" }, 404);
+
+  // Idempotente: si el documento ya existe, devolverlo en vez de duplicar
+  const existingDoc = db.filter("documents", (d) => d.request_id === r.id)[0];
+  if (existingDoc) {
+    const existingReview = db.filter("review_tasks", (t) => t.request_id === r.id)[0] ?? null;
+    return json({ request: r, document: existingDoc, review_task: existingReview });
+  }
+
   if (r.status !== "listo") return json({ error: "Faltan datos por completar" }, 409);
 
   const service = db.get("services", r.service_id);

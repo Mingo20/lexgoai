@@ -239,7 +239,7 @@
     const { request, service, document, review_task } = await api(`/api/requests/${requestId}`);
     const answers = request.answers;
     const fields = service.fields;
-    const answeredCount = fields.filter((f) => answers[f.key]?.trim()).length;
+    const answeredCount = fields.filter((f) => f.key in answers).length;
     const open = request.status === "recopilando" || request.status === "listo";
 
     const msgs = [];
@@ -256,7 +256,7 @@
     let inputBox = "";
     let pending = null;
     if (open && !document) {
-      pending = fields.find((f) => !answers[f.key]?.trim());
+      pending = fields.find((f) => !(f.key in answers));
       if (pending) {
         inputBox = `
         <div class="chat-input">
@@ -265,6 +265,7 @@
           ${pending.hint ? `<p class="hint">${esc(pending.hint)}</p>` : ""}
           <div class="row">
             <button class="btn btn-primary" id="send-btn">${icon("send")} Enviar</button>
+            ${pending && !pending.required ? `<button class="btn btn-ghost" id="skip-btn">Omitir</button>` : ""}
             <span class="hint" style="margin:0">${answeredCount}/${fields.length} datos</span>
           </div>
         </div>`;
@@ -353,6 +354,20 @@
         }
       };
       sendBtn.addEventListener("click", submit);
+      const skipBtn = document.getElementById("skip-btn");
+      if (skipBtn) skipBtn.addEventListener("click", async () => {
+        skipBtn.disabled = true;
+        try {
+          await api(`/api/requests/${requestId}/answers`, {
+            method: "POST",
+            body: { answers: { [pending.key]: "" } },
+          });
+          viewAssistant(requestId);
+        } catch (err) {
+          app.insertAdjacentHTML("afterbegin", `<div class="err-box">${esc(err.message)}</div>`);
+          skipBtn.disabled = false;
+        }
+      });
       const el = document.getElementById("fld");
       if (el) {
         el.addEventListener("keydown", (e) => {
@@ -427,6 +442,7 @@
           <div class="info">
             <h3>${esc(r.service?.name ?? r.service_id)}</h3>
             <p>Solicitado el ${fmtDate(r.created_date)}</p>
+            ${r.status === "rechazado" && r.review_notes ? `<p style="color:var(--red);font-size:13px;margin-top:4px">${icon("alert")} ${esc(r.review_notes)}</p>` : ""}
           </div>
           <div class="meta">${chip(st.label, st.cls)} ${chip(RISK[r.risk].label, RISK[r.risk].cls)}</div>
           ${action}
