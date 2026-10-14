@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LexGoAI — Asistencia jurídica digital</title>
+  <meta name="description" content="Plataforma de asistencia jurídica digital para República Dominicana, asistida por agentes de IA especializados. Asistente jurídico virtual, no un abogado." />
+  <meta name="theme-color" content="#16324F" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="icons/favicon-64.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    // Modo de backend: "deno" (mismo origen) o "base44" (función desplegada).
+    window.LEXGO_BACKEND = "base44";
+    // URL del backend. Vacío = mismo origen (Deno sirve el frontend).
+    window.LEXGO_API_BASE = "https://superagent-573efe2c.base44.app";
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#/servicios" aria-label="LexGoAI, inicio">
+        <img src="icons/icon-192.png" alt="" class="brand-logo" />
+        <span class="brand-name">LexGoAI</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#/servicios" data-nav="servicios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M8 6l-3.5 7a4 4 0 0 0 7 0L8 6Z"/><path d="M16 6l-3.5 7a4 4 0 0 0 7 0L16 6Z"/><path d="M12 3v18M8 21h8"/></svg>
+          <span>Servicios</span>
+        </a>
+        <a href="#/mis-documentos" data-nav="mis-documentos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          <span>Mis documentos</span>
+        </a>
+        <a href="#/admin" data-nav="admin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <span>Panel</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="disclaimer-bar" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="disclaimer-ic"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <span>Asistente jurídico virtual, no un abogado. Los documentos de riesgo medio y alto pasan por revisión profesional.</span>
+  </div>
+
+  <main id="app" class="container app-main" aria-live="polite"></main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>LexGoAI · República Dominicana</p>
+      <p>Plataforma de asistencia jurídica digital con supervisión profesional según el riesgo. Precios informativos de prueba.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>
